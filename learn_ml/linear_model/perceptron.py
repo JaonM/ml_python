@@ -65,7 +65,7 @@ class Perceptron(object):
             correct_clf_count = 0
             err_clf_count = 0
             print('training {} epoch'.format(_epoch))
-            w_delta = np.zeros(self.w.shape)
+            w_delta = np.zeros(self.weight.shape)
             b_delta = 0
             for i in range(X.shape[0]):
                 _y = self._decision_function(X[i]).item() * y[i]
