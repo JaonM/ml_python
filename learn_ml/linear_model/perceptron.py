@@ -91,7 +91,14 @@ class Perceptron(object):
                 res[i] = 1
             else:
                 res[i] = -1
+            res[i] = self.sign(res[i])
         return res
+
+    def sign(self, val):
+        if val > 0:
+            return 1
+        else:
+            return -1
 
     def get_param(self):
         return self.weight, self.bias

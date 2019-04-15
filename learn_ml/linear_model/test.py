@@ -1,4 +1,4 @@
-from learn_ml.linear_model.perceptron import Perceptron
+from learn_ml.linear_model import Perceptron
 import numpy as np
 
 X = np.array([[1, 3, 1], [2, 5, 1], [3, 8, 1], [2, 6, 1], [3, 1, -1], [4, 1, -1], [6, 2, -1], [7, 3, -1]])
