@@ -38,7 +38,8 @@ class KDTree(object):
             new = self.insert(data, (cd + 1) & self.dim, node.right_child)
         return new
 
-    def create(self):
+    @classmethod
+    def create(cls, dim, candidate):
         pass
 
 
