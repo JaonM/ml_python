@@ -19,7 +19,7 @@ class KDTree(object):
         self.root = root
         self.dim = dim
 
-    def insert(self, data, cd):
+    def insert(self, data, cd, node):
         if isinstance(data, (list, set, tuple)):
             dim = len(data)
         elif isinstance(data, np.ndarray):
@@ -28,6 +28,18 @@ class KDTree(object):
             raise TypeError('not support type', type(data))
         if dim != self.dim:
             raise ValueError('not legal dimension,plz check')
+        if node is None:
+            new = KDNode(data, cd)
+        elif node.data == data:
+            raise ValueError('duplicate data')
+        elif data[cd] < node.data[cd]:
+            new = self.insert(data, (cd + 1) % self.dim, node.left_child)
+        elif data[cd] > node.data[cd]:
+            new = self.insert(data, (cd + 1) & self.dim, node.right_child)
+        return new
+
+    def create(self):
+        pass
 
 
 class KDNode(object):
