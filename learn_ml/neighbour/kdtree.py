@@ -39,8 +39,16 @@ class KDTree(object):
         return new
 
     @classmethod
-    def create(cls, dim, candidate):
-        pass
+    def create(cls, dim, candidates):
+        """
+        Instance KD Tree
+        :param dim: Data dimension
+        :param candidates: Insert candidate data,usually nd-array shape in (n_sample,n_dim)
+        :return: KDTree
+        """
+        if len(candidates) == 0:
+            return KDTree(None, dim)
+        tree = KDTree(KDNode(candidates[0], 0), dim)
 
 
 class KDNode(object):
