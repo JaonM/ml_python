@@ -54,6 +54,23 @@ class KDTree(object):
             tree.insert(candidates[i], 0, tree.root)
         return tree
 
+    def __str__(self):
+        arr = list()
+        arr = self._print_traverse(self.root, arr)
+        res = ''
+        for node in arr:
+            res += str(node)
+        return res
+
+    def _print_traverse(self, node, arr):
+        if node is not None:
+            arr.append(node)
+        if node.left_child:
+            return self._print_traverse(node.left_child, arr)
+        if node.right_child:
+            return self._print_traverse(node.right_child, arr)
+        return arr
+
 
 class KDNode(object):
     """
@@ -71,3 +88,13 @@ class KDNode(object):
         self.cd = cd
         self.left_child = left_child
         self.right_child = right_child
+
+    def __str__(self):
+        if isinstance(self.data, int):
+            return "Node{data:" + str(self.data) + ",cd:" + str(self.cd) + '}'
+        else:
+            return "Node{data shape:" + str(self.data.shape) + ",cd:" + str(self.cd) + '}'
+
+
+if __name__ == "__main__":
+    print(KDNode(123, 0))
