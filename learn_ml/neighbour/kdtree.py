@@ -50,6 +50,10 @@ class KDTree(object):
             return KDTree(None, dim)
         tree = KDTree(KDNode(candidates[0], 0), dim)
 
+        for i in range(1, len(candidates)):
+            tree.insert(candidates[i], 0, tree)
+        return tree
+
 
 class KDNode(object):
     """
