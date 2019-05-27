@@ -51,7 +51,7 @@ class KDTree(object):
         tree = KDTree(KDNode(candidates[0], 0), dim)
 
         for i in range(1, len(candidates)):
-            tree.insert(candidates[i], 0, tree)
+            tree.insert(candidates[i], 0, tree.root)
         return tree
 
 
