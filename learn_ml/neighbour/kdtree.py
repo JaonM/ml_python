@@ -23,20 +23,20 @@ class KDTree(object):
         if isinstance(data, (list, set, tuple)):
             dim = len(data)
         elif isinstance(data, np.ndarray):
-            dim = data.shape[1]
+            dim = data.shape[0]
         else:
             raise TypeError('not support type', type(data))
         if dim != self.dim:
             raise ValueError('not legal dimension,plz check')
         if node is None:
-            new = KDNode(data, cd)
-        elif node.data == data:
+            node = KDNode(data, cd)
+        elif (node.data == data).all():
             raise ValueError('duplicate data')
-        elif data[cd] < node.data[cd]:
-            new = self.insert(data, (cd + 1) % self.dim, node.left_child)
+        elif data[cd] <= node.data[cd]:
+            node.left_child = self.insert(data, (cd + 1) % self.dim, node.left_child)
         elif data[cd] > node.data[cd]:
-            new = self.insert(data, (cd + 1) & self.dim, node.right_child)
-        return new
+            node.right_child = self.insert(data, (cd + 1) % self.dim, node.right_child)
+        return node
 
     @classmethod
     def create(cls, dim, candidates):
@@ -46,8 +46,10 @@ class KDTree(object):
         :param candidates: Insert candidate data,usually nd-array shape in (n_sample,n_dim)
         :return: KDTree
         """
-        if len(candidates) == 0:
+        if candidates is None or len(candidates) == 0:
             return KDTree(None, dim)
+        if not isinstance(candidates, np.ndarray):
+            candidates = np.array(candidates)
         tree = KDTree(KDNode(candidates[0], 0), dim)
 
         for i in range(1, len(candidates)):
@@ -56,20 +58,20 @@ class KDTree(object):
 
     def __str__(self):
         arr = list()
-        arr = self._print_traverse(self.root, arr)
+        self._print_traverse(self.root, arr)
         res = ''
         for node in arr:
-            res += str(node)
-        return res
+            res += str(node)+' '
+        return res[:-1]
 
     def _print_traverse(self, node, arr):
         if node is not None:
             arr.append(node)
-        if node.left_child:
-            return self._print_traverse(node.left_child, arr)
-        if node.right_child:
-            return self._print_traverse(node.right_child, arr)
-        return arr
+        if node.left_child is not None:
+            self._print_traverse(node.left_child, arr)
+        if node.right_child is not None:
+            self._print_traverse(node.right_child, arr)
+        return
 
 
 class KDNode(object):
@@ -97,4 +99,8 @@ class KDNode(object):
 
 
 if __name__ == "__main__":
-    print(KDNode(123, 0))
+    candidates = np.random.random((4, 3))
+    print(candidates)
+    kdtree = KDTree.create(candidates.shape[1], candidates)
+    print(kdtree)
+    print(kdtree.dim)
