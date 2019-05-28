@@ -61,7 +61,7 @@ class KDTree(object):
         self._print_traverse(self.root, arr)
         res = ''
         for node in arr:
-            res += str(node)+' '
+            res += str(node) + ' '
         return res[:-1]
 
     def _print_traverse(self, node, arr):
@@ -74,6 +74,35 @@ class KDTree(object):
         if node.right_child is not None:
             self._print_traverse(node.right_child, arr)
         return
+
+    def find_min(self, cd, node):
+        """
+        Find node with minimum value on specific cutting dimension
+        :param cd:
+        :param node:
+        :return:
+        """
+        if node is None:
+            return None
+        if cd == node.cd:
+            if node.left_child is None:
+                return node
+            else:
+                return self.find_min(cd, node.left_child)
+
+        else:
+            left_min = self.find_min(cd, node.left_child)
+            right_min = self.find_min(cd, node.right_child)
+            if left_min and right_min:
+                if left_min.data[cd] <= right_min.data[cd]:
+                    return left_min
+                else:
+                    return right_min
+            if left_min and not right_min:
+                return left_min
+            if right_min and not left_min:
+                return right_min
+            return None
 
 
 class KDNode(object):
