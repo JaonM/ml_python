@@ -67,6 +67,8 @@ class KDTree(object):
     def _print_traverse(self, node, arr):
         if node is not None:
             arr.append(node)
+        else:
+            return
         if node.left_child is not None:
             self._print_traverse(node.left_child, arr)
         if node.right_child is not None:
@@ -99,8 +101,8 @@ class KDNode(object):
 
 
 if __name__ == "__main__":
-    candidates = np.random.random((4, 3))
+    candidates = np.random.random((7, 10))
     print(candidates)
-    kdtree = KDTree.create(candidates.shape[1], candidates)
+    kdtree = KDTree.create(candidates.shape[1], None)
     print(kdtree)
     print(kdtree.dim)
