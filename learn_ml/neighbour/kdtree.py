@@ -93,16 +93,35 @@ class KDTree(object):
         else:
             left_min = self.find_min(cd, node.left_child)
             right_min = self.find_min(cd, node.right_child)
-            if left_min and right_min:
-                if left_min.data[cd] <= right_min.data[cd]:
-                    return left_min
-                else:
-                    return right_min
-            if left_min and not right_min:
-                return left_min
-            if right_min and not left_min:
-                return right_min
-            return None
+            # if left_min and right_min:
+            #     if left_min.data[cd] <= right_min.data[cd]:
+            #         return left_min
+            #     else:
+            #         return right_min
+            # if left_min and not right_min:
+            #     return left_min
+            # if right_min and not left_min:
+            #     return right_min
+            # return None
+            return self._compare_node(cd, 0, node, left_min, right_min)
+
+    @staticmethod
+    def _compare_node(cd, flag=0, *nodes):
+        """
+        compare several nodes on specific cutting dimension
+        :param cd:
+        :param flag: 0 for less than 1 for larger than
+        :param node:
+        :return: minimum or maximum node on specific cutting dimension
+        """
+        ret = nodes[0]
+        for node in nodes:
+            if node is None:
+                continue
+            if (flag == 0 and node.data[cd] < ret.data[cd]) or \
+                    (flag == 1 and node.data[cd] > ret.data[cd]):
+                ret = node
+        return ret
 
 
 class KDNode(object):
