@@ -157,3 +157,6 @@ pip-selfcheck.json
 *.json
 tmp
 tmp_data
+.vscode/
+.pytest_cache/
+.python-version/

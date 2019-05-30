@@ -51,7 +51,6 @@ class KDTree(object):
         if not isinstance(candidates, np.ndarray):
             candidates = np.array(candidates)
         tree = KDTree(KDNode(candidates[0], 0), dim)
-
         for i in range(1, len(candidates)):
             tree.insert(candidates[i], 0, tree.root)
         return tree
@@ -75,7 +74,10 @@ class KDTree(object):
             self._print_traverse(node.right_child, arr)
         return
 
-    def find_min(self, cd, node):
+    def find_min(self, cd):
+        return self._find_min(cd, self.root)
+
+    def _find_min(self, cd, node):
         """
         Find node with minimum value on specific cutting dimension
         :param cd:
@@ -88,11 +90,11 @@ class KDTree(object):
             if node.left_child is None:
                 return node
             else:
-                return self.find_min(cd, node.left_child)
+                return self._find_min(cd, node.left_child)
 
         else:
-            left_min = self.find_min(cd, node.left_child)
-            right_min = self.find_min(cd, node.right_child)
+            left_min = self._find_min(cd, node.left_child)
+            right_min = self._find_min(cd, node.right_child)
             # if left_min and right_min:
             #     if left_min.data[cd] <= right_min.data[cd]:
             #         return left_min
@@ -123,6 +125,23 @@ class KDTree(object):
                 ret = node
         return ret
 
+    def _delete(self, node):
+        """
+        recursive delete the subtree which parent is node
+        :param node: node need to be deleted
+        :return: new node which substitutes the deleted node
+        """
+        if not node:
+            return None
+        if node.right_child:
+            n = self._find_min(node.cd, node.right_child)
+            n.left_child = node.left_child
+            n.right_child = self._delete(n)
+        elif node.left_child:
+            n = self._find_min(node.cd, node.left_child)
+
+        return n
+
 
 class KDNode(object):
     """
@@ -149,8 +168,8 @@ class KDNode(object):
 
 
 if __name__ == "__main__":
-    candidates = np.random.random((7, 10))
+    candidates = np.random.random((3, 3))
     print(candidates)
-    kdtree = KDTree.create(candidates.shape[1], None)
-    print(kdtree)
-    print(kdtree.dim)
+    kdtree = KDTree.create(candidates.shape[1], candidates)
+    min_node = kdtree.find_min(2)
+    print(min_node.data)
