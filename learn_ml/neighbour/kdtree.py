@@ -125,13 +125,35 @@ class KDTree(object):
                 ret = node
         return ret
 
-    def _delete(self, node):
+    def delete_node(self, data):
         """
-        recursive delete the subtree which parent is node
-        :param node: node need to be deleted
+        Delete the node match the data
+        :param data:
+        :return: bool whether delete the node
+        """
+        arr = []
+        self._print_traverse(self.root, arr)
+        target = None
+        for _node in arr:
+            if (_node.data == data).all():
+                target = _node
+                break
+        if target:
+            target= self._delete(target)
+            return True
+        else:
+            print('node not found')
+            return None
+
+    def _delete(self, data,node):
+        """
+        Recursive delete the node match data
+        :data: deleted node data
+        :param node: which node(subtree) to search
         :return: new node which substitutes the deleted node
         """
         if not node:
+            print('node ')
             return None
         if node.right_child:
             n = self._find_min(node.cd, node.right_child)
@@ -139,7 +161,10 @@ class KDTree(object):
             n.right_child = self._delete(n)
         elif node.left_child:
             n = self._find_min(node.cd, node.left_child)
-
+            n.right_child = self._delete(n)
+            n.left_child = None
+        else:   # leaf node, removed
+            return None
         return n
 
 
@@ -171,5 +196,6 @@ if __name__ == "__main__":
     candidates = np.random.random((3, 3))
     print(candidates)
     kdtree = KDTree.create(candidates.shape[1], candidates)
-    min_node = kdtree.find_min(2)
-    print(min_node.data)
+    print(kdtree)
+    print(kdtree.delete_node(candidates[0]))
+    print(kdtree)
