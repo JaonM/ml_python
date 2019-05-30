@@ -129,43 +129,36 @@ class KDTree(object):
         """
         Delete the node match the data
         :param data:
-        :return: bool whether delete the node
+        :return:
         """
-        arr = []
-        self._print_traverse(self.root, arr)
-        target = None
-        for _node in arr:
-            if (_node.data == data).all():
-                target = _node
-                break
-        if target:
-            target= self._delete(target)
-            return True
-        else:
-            print('node not found')
-            return None
+        self._delete(data, self.root)
 
-    def _delete(self, data,node):
+    def _delete(self, data, node):
         """
         Recursive delete the node match data
-        :data: deleted node data
+        :param data: deleted node data
         :param node: which node(subtree) to search
         :return: new node which substitutes the deleted node
         """
         if not node:
-            print('node ')
+            print('node not found')
             return None
-        if node.right_child:
-            n = self._find_min(node.cd, node.right_child)
-            n.left_child = node.left_child
-            n.right_child = self._delete(n)
-        elif node.left_child:
-            n = self._find_min(node.cd, node.left_child)
-            n.right_child = self._delete(n)
-            n.left_child = None
-        else:   # leaf node, removed
-            return None
-        return n
+        if (node.data == data).all():
+            if node.right_child:
+                n = self._find_min(node.cd, node.right_child)
+                node.data = n.data
+                node.right_child = self._delete(data, node.right_child)
+            elif node.left_child:
+                n = self._find_min(node.cd, node.left_child)
+                node.data = n.data
+                node.right_child = self._delete(data, node.left_child)
+            else:  # leaf node, removed
+                node = None
+        elif data[node.cd] < node.data:  # recursive delete left sub tree
+            node.left_child = self._delete(data, node.left_child)
+        else:  # recursive delete right sub tree
+            node.right_child = self._delete(data, node.right_child)
+        return node
 
 
 class KDNode(object):
