@@ -57,21 +57,21 @@ class KDTree(object):
 
     def __str__(self):
         arr = list()
-        self._print_traverse(self.root, arr)
+        self._traverse(self.root, arr)
         res = ''
         for node in arr:
             res += str(node) + ' '
         return res[:-1]
 
-    def _print_traverse(self, node, arr):
+    def _traverse(self, node, arr):
         if node is not None:
             arr.append(node)
         else:
             return
         if node.left_child is not None:
-            self._print_traverse(node.left_child, arr)
+            self._traverse(node.left_child, arr)
         if node.right_child is not None:
-            self._print_traverse(node.right_child, arr)
+            self._traverse(node.right_child, arr)
         return
 
     def find_min(self, cd):
@@ -154,6 +154,15 @@ class KDTree(object):
             # n=node
         return node
 
+    def get_node_num(self):
+        """
+        Return number of nodes in kd-tree
+        :return:
+        """
+        arr = []
+        self._traverse(self.root, arr)
+        return len(arr)
+
 
 class KDNode(object):
     """
@@ -180,7 +189,7 @@ class KDNode(object):
 
 
 if __name__ == "__main__":
-    candidates = np.random.random((3, 3))
+    candidates = np.random.rand(3, 10)
     print(candidates)
     kdtree = KDTree.create(candidates.shape[1], candidates)
     print(kdtree)
