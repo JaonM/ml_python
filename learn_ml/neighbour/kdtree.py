@@ -141,23 +141,27 @@ class KDTree(object):
         :return: new node which substitutes the deleted node
         """
         if not node:
-            print('node not found')
+            # print('node not found')
             return None
         if (node.data == data).all():
             if node.right_child:
                 n = self._find_min(node.cd, node.right_child)
                 node.data = n.data
-                node.right_child = self._delete(data, node.right_child)
+                node.right_child = self._delete(n.data, node.right_child)
             elif node.left_child:
                 n = self._find_min(node.cd, node.left_child)
                 node.data = n.data
-                node.right_child = self._delete(data, node.left_child)
+                node.right_child = self._delete(n.data, node.left_child)
+                node.left_child = None
             else:  # leaf node, removed
-                node = None
-        elif data[node.cd] < node.data:  # recursive delete left sub tree
+                # n = None
+                return None
+        elif data[node.cd] < node.data[node.cd]:  # recursive delete left sub tree
             node.left_child = self._delete(data, node.left_child)
+            # n=node
         else:  # recursive delete right sub tree
             node.right_child = self._delete(data, node.right_child)
+            # n=node
         return node
 
 
@@ -182,7 +186,7 @@ class KDNode(object):
         if isinstance(self.data, int):
             return "Node{data:" + str(self.data) + ",cd:" + str(self.cd) + '}'
         else:
-            return "Node{data shape:" + str(self.data.shape) + ",cd:" + str(self.cd) + '}'
+            return "Node{data shape:" + str(self.data.shape) + ",cd:" + str(self.cd) + ",data: " + str(self.data) + '}'
 
 
 if __name__ == "__main__":
@@ -190,5 +194,5 @@ if __name__ == "__main__":
     print(candidates)
     kdtree = KDTree.create(candidates.shape[1], candidates)
     print(kdtree)
-    print(kdtree.delete_node(candidates[0]))
+    kdtree.delete_node(candidates[2])
     print(kdtree)
