@@ -95,16 +95,6 @@ class KDTree(object):
         else:
             left_min = self._find_min(cd, node.left_child)
             right_min = self._find_min(cd, node.right_child)
-            # if left_min and right_min:
-            #     if left_min.data[cd] <= right_min.data[cd]:
-            #         return left_min
-            #     else:
-            #         return right_min
-            # if left_min and not right_min:
-            #     return left_min
-            # if right_min and not left_min:
-            #     return right_min
-            # return None
             return self._compare_node(cd, 0, node, left_min, right_min)
 
     @staticmethod
