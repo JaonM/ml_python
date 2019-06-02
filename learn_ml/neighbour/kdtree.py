@@ -10,6 +10,8 @@ class KDTree(object):
 
     A data structure to split the data space
 
+    Unbalanced kd-tree
+
     Attributes:
         root: root node of the tree
         dim: data dimension
