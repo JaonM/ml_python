@@ -47,6 +47,10 @@ def get_k_nearest_neighbor(X, k, kdtree, dist_metric='l2'):
             # search subtree
             if track_pair[1] == 'left' and track_node.right_child:  # search right subtree
                 pass
+            elif track_pair[1] == 'right' and track_node.left_child:
+                pass
+            else:
+                pass
 
 
 def dist(x1, x2, norm='l2'):
