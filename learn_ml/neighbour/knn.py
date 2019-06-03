@@ -6,6 +6,7 @@ import numpy as np
 
 def get_k_nearest_neighbor(X, k, kdtree, dist_metric='l2'):
     """
+    Get X k-nearest node using kd-tree
     :param X: X query data,ndarray
     :param k: number of nearest node
     :param kdtree:
@@ -45,12 +46,34 @@ def get_k_nearest_neighbor(X, k, kdtree, dist_metric='l2'):
         # whether to search the subtree of track node
         if abs(track_node.data[track_node.cd] - pair[0].data[track_node.cd]) < pair[1]:
             # search subtree
-            if track_pair[1] == 'left' and track_node.right_child:  # search right subtree
-                pass
-            elif track_pair[1] == 'right' and track_node.left_child:
-                pass
+            if track_node.left_child or track_node.right_child:
+                leaf = None
+                if track_pair[1] == 'left' and track_node.right_child:  # search right subtree
+                    node = track_node.right_child
+                elif track_pair[1] == 'right' and track_node.left_child:
+                    node = track_node.left_child
+
+                while node:
+                    if X[node.cd] < node.data[node.cd]:
+                        node = node.left_child
+                        backtrack.append((node, 'left'))
+                        leaf = node
+                    else:
+                        node = node.right_child
+                        backtrack.append((node, 'right'))
+                        leaf = node
             else:
-                pass
+                leaf = track_node
+            d = dist(leaf.data, X, dist_metric)
+            if len(nearest_nodes) <= k:
+                nearest_nodes.append((leaf, d))
+            else:
+                max_pair = max(nearest_nodes, lambda x: x[1])
+                if max_pair[1] >= d:
+                    nearest_nodes.remove(max_pair)
+                    nearest_nodes.append((leaf, d))
+        track_pair = backtrack.pop()
+    return list(map(lambda x: x[0], nearest_nodes))
 
 
 def dist(x1, x2, norm='l2'):
