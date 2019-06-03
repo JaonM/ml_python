@@ -10,7 +10,7 @@ def get_k_nearest_neighbor(X, k, kdtree, dist_metric='l2'):
     :param X: X query data,ndarray
     :param k: number of nearest node
     :param kdtree:
-    :param dist_metric: distance metrice
+    :param dist_metric: distance metric
     First find the leaf node
     Then backtrack to the root
     :return:
@@ -54,7 +54,7 @@ def get_k_nearest_neighbor(X, k, kdtree, dist_metric='l2'):
                     node = track_node.left_child
 
                 while node:
-                    if X[node.cd] < node.data[node.cd]:
+                    if X[node.cd] <= node.data[node.cd]:
                         node = node.left_child
                         backtrack.append((node, 'left'))
                         leaf = node
