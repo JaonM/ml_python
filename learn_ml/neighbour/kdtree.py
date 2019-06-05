@@ -21,7 +21,7 @@ class KDTree(object):
         self.root = root
         self.dim = dim
 
-    def insert(self, data, cd, node):
+    def insert(self, data, cd, node, label):
         if isinstance(data, (list, set, tuple)):
             dim = len(data)
         elif isinstance(data, np.ndarray):
@@ -31,21 +31,22 @@ class KDTree(object):
         if dim != self.dim:
             raise ValueError('not legal dimension,plz check')
         if node is None:
-            node = KDNode(data, cd)
+            node = KDNode(data, cd, label=label)
         elif (node.data == data).all():
             raise ValueError('duplicate data')
         elif data[cd] <= node.data[cd]:
-            node.left_child = self.insert(data, (cd + 1) % self.dim, node.left_child)
+            node.left_child = self.insert(data, (cd + 1) % self.dim, node.left_child,label)
         elif data[cd] > node.data[cd]:
-            node.right_child = self.insert(data, (cd + 1) % self.dim, node.right_child)
+            node.right_child = self.insert(data, (cd + 1) % self.dim, node.right_child,label)
         return node
 
     @classmethod
-    def create(cls, dim, candidates):
+    def create(cls, dim, candidates, labels):
         """
         Instance KD Tree
         :param dim: Data dimension
         :param candidates: Insert candidate data,usually nd-array shape in (n_sample,n_dim)
+        :param labels: predict labels
         :return: KDTree
         """
         if candidates is None or len(candidates) == 0:
@@ -54,7 +55,7 @@ class KDTree(object):
             candidates = np.array(candidates)
         tree = KDTree(KDNode(candidates[0], 0), dim)
         for i in range(1, len(candidates)):
-            tree.insert(candidates[i], 0, tree.root)
+            tree.insert(candidates[i], 0, tree.root, labels[i])
         return tree
 
     def __str__(self):
@@ -175,19 +176,22 @@ class KDNode(object):
         cd: cutting dimension
         left_child: left child node
         right_child: right child node
+        label: predict label
     """
 
-    def __init__(self, data, cd, left_child=None, right_child=None):
+    def __init__(self, data, cd, left_child=None, right_child=None, label=1):
         self.data = data
         self.cd = cd
         self.left_child = left_child
         self.right_child = right_child
+        self.label = label
 
     def __str__(self):
         if isinstance(self.data, int):
-            return "Node{data:" + str(self.data) + ",cd:" + str(self.cd) + '}'
+            return "Node{data:" + str(self.data) + ",cd:" + str(self.cd) + "label:" + str(self.label) + '}'
         else:
-            return "Node{data shape:" + str(self.data.shape) + ",cd:" + str(self.cd) + ",data: " + str(self.data) + '}'
+            return "Node{data shape:" + str(self.data.shape) + ",cd:" + str(self.cd) + ",data: " + str(self.data) + \
+                   "label:" + str(self.label) + '}'
 
 
 if __name__ == "__main__":
