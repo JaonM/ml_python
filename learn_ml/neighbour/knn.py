@@ -71,11 +71,8 @@ def get_k_nearest_neighbor(X, k, kdtree, dist_metric='l2'):
                     node = track_node.left_child
                 else:
                     node = None
-                # print('other node:', node.data)
                 _leaf = None
                 while node:
-                    # print(node.data)
-                    # print(leaf)
                     if node.left_child or node.right_child:
                         _leaf = None
                     else:
