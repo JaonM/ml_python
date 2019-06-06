@@ -35,9 +35,9 @@ class KDTree(object):
         elif (node.data == data).all():
             raise ValueError('duplicate data')
         elif data[cd] <= node.data[cd]:
-            node.left_child = self.insert(data, (cd + 1) % self.dim, node.left_child,label)
+            node.left_child = self.insert(data, (cd + 1) % self.dim, node.left_child, label)
         elif data[cd] > node.data[cd]:
-            node.right_child = self.insert(data, (cd + 1) % self.dim, node.right_child,label)
+            node.right_child = self.insert(data, (cd + 1) % self.dim, node.right_child, label)
         return node
 
     @classmethod
@@ -53,7 +53,7 @@ class KDTree(object):
             return KDTree(None, dim)
         if not isinstance(candidates, np.ndarray):
             candidates = np.array(candidates)
-        tree = KDTree(KDNode(candidates[0], 0), dim)
+        tree = KDTree(KDNode(candidates[0], 0, label=labels[0]), dim)
         for i in range(1, len(candidates)):
             tree.insert(candidates[i], 0, tree.root, labels[i])
         return tree
@@ -188,10 +188,10 @@ class KDNode(object):
 
     def __str__(self):
         if isinstance(self.data, int):
-            return "Node{data:" + str(self.data) + ",cd:" + str(self.cd) + "label:" + str(self.label) + '}'
+            return "Node{data:" + str(self.data) + ",cd:" + str(self.cd) + ",label:" + str(self.label) + '}'
         else:
             return "Node{data shape:" + str(self.data.shape) + ",cd:" + str(self.cd) + ",data: " + str(self.data) + \
-                   "label:" + str(self.label) + '}'
+                   ",label:" + str(self.label) + '}'
 
 
 if __name__ == "__main__":

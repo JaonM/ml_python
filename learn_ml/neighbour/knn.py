@@ -44,10 +44,10 @@ def get_k_nearest_neighbor(X, k, kdtree, dist_metric='l2'):
 
     # backtrack
     track_pair = backtrack.pop()  # pop the leaf node
-    if len(track_pair) > 0:
+    if len(backtrack) > 0:
         track_pair = backtrack.pop()
     else:
-        return track_pair[0]
+        return [track_pair[0]]
 
     while track_pair:
         track_node = track_pair[0]
@@ -126,12 +126,12 @@ class KNN(object):
         :param X: nd-array
         :return: label
         """
-        nodes = get_k_nearest_neighbor(X, k, self.kdtree, self.dist_metric)
+        nodes = get_k_nearest_neighbor(X, self.k, self.kdtree, self.dist_metric)
         label_count = dict()
         for n in nodes:
             label_count[n.label] = label_count.get(n.label, 0) + 1
-        labels = sorted(label_count.items(), key=lambda x: x[1])
-        return labels[0][1]
+        labels = sorted(label_count.items(), key=lambda x: x[1], reverse=True)
+        return labels[0][0]
 
 
 def dist(x1, x2, norm='l2'):
@@ -152,7 +152,7 @@ def dist(x1, x2, norm='l2'):
 
 
 if __name__ == '__main__':
-    candidates = np.random.rand(4, 3)
+    # candidates = np.random.rand(4, 3)
     # candidates = np.array([[0.258017, 0.0705579, 0.58036449],
     #                        [0.70428203, 0.52160264, 0.72348793],
     #                        [0.60345968, 0.06662077, 0.36817954],
@@ -165,8 +165,11 @@ if __name__ == '__main__':
     #                        [0.18263174, 0.16887976, 0.45254244],
     #                        [0.83041737, 0.49262772, 0.86805106],
     #                        [0.61721591, 0.31796199, 0.1355832]])
+    candidates = np.array([[0.00986425, 0.71220109, 0.56645389],
+                           [0.71679026, 0.10327714, 0.05111899],
+                           [0.48292746, 0.25405198, 0.41224948],
+                           [0.92887125, 0.908531, 0.62031536]])
     print(candidates)
     kdtree = KDTree.create(3, candidates, np.zeros(len(candidates)))
-    n = get_k_nearest_neighbor(candidates[2], 1, kdtree)
-    for _ in n:
-        print(_.data)
+    knn = KNN(candidates, np.zeros(len(candidates)), 3, 'l2')
+    print(knn.predict(candidates[0]))
