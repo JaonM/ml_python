@@ -152,7 +152,6 @@ pyvenv.cfg
 pip-selfcheck.json
 
 *.xlsx
-*.ipynb
 .idea/*
 *.json
 tmp
@@ -160,4 +159,3 @@ tmp_data
 .vscode/
 .pytest_cache/
 .python-version/
-.ipynb_checkpoints/
