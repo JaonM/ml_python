@@ -4,6 +4,7 @@ k nearest neighbor
 import numpy as np
 from learn_ml.neighbour.kdtree import KDTree
 from learn_ml.utility import save_divide
+import enum
 
 
 def get_k_nearest_neighbor(X, k, kdtree, dist_metric='l2'):
@@ -102,6 +103,11 @@ def get_k_nearest_neighbor(X, k, kdtree, dist_metric='l2'):
     return list(map(lambda x: x[0], sorted(nearest_nodes, key=lambda x: x[1])))
 
 
+class DecisionEnum(enum.Enum):
+    VOTE = 1
+    NEAREST = 2
+
+
 class KNN(object):
     """
     K-Nearest Neighbor Model
@@ -121,24 +127,36 @@ class KNN(object):
         self.kdtree = KDTree.create(candidates.shape[1], candidates, labels=labels)
         self.dist_metric = dist_metric
 
-    def predict(self, X, regression=False):
+    def predict(self, X, regression=False, decision_strategy=DecisionEnum.VOTE):
         """
         Predict function
         :param X: nd-array
+        :param regression: whether run regression task
+        :param decision_strategy: decision strategy
         :return: label
         """
         nodes = get_k_nearest_neighbor(X, self.k, self.kdtree, self.dist_metric)
         label_count = dict()
         if regression:
-            _sum = 0
-            for n in nodes:
-                _sum += n.label
-            return save_divide(_sum, len(nodes))
+            if decision_strategy == DecisionEnum.VOTE:
+                _sum = 0
+                for n in nodes:
+                    _sum += n.label
+                return save_divide(_sum, len(nodes))
+            elif decision_strategy == DecisionEnum.NEAREST:
+                return nodes[0].label
+            else:
+                raise ValueError("Not supported decision strategy")
         else:
-            for n in nodes:
-                label_count[n.label] = label_count.get(n.label, 0) + 1
-            labels = sorted(label_count.items(), key=lambda x: x[1], reverse=True)
-            return labels[0][0]
+            if decision_strategy == DecisionEnum.VOTE:
+                for n in nodes:
+                    label_count[n.label] = label_count.get(n.label, 0) + 1
+                labels = sorted(label_count.items(), key=lambda x: x[1], reverse=True)
+                return labels[0][0]
+            elif decision_strategy == DecisionEnum.NEAREST:
+                return nodes[0].label
+            else:
+                raise ValueError("Not supported decision strategy")
 
 
 def dist(x1, x2, norm='l2'):
