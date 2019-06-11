@@ -16,9 +16,20 @@ class NaiveBayes(object):
     def __init__(self, smooth_strategy='laplace'):
         self.smooth_strategy = smooth_strategy
 
+    def fit_backup(self,X,y):
+        """
+        use 3-d array to store pre-compute result
+        :param X:
+        :param y:
+        :return:
+        """
+        pass
+
     def fit(self, X, y):
         if not isinstance(X, np.ndarray):
             raise ValueError('Not supported data structure')
+        self.X = X
+        self.y = y
         self.dim = X.shape[1]
         # save y probability
         self.y_prob = dict()
@@ -74,7 +85,9 @@ class NaiveBayes(object):
                             p = p * self.feature_map[i]['prob'][sample[i]][y]
                         else:
                             # laplace smooth
-                            p = p * (1 / len(self.feature_map[i]['prob'].keys()))
+                            p = p * (self.feature_map[i]['prob'][sample[i]][y] * len(self.y) + 1 / len(self.y) + len(
+                                self.feature_map[i]['prob'].keys()))
+                            # p=p*0.001
                 if not target and not max_p:
                     target = y
                     max_p = p
@@ -108,4 +121,4 @@ if __name__ == '__main__':
     clf.fit(x, y)
     print(clf.feature_map)
     print(clf.y_prob)
-    print(clf.predict(np.array([[1.1, 'asd', 3]], dtype=object)))
+    print(clf.predict(np.array([[1.3, 'zcxzx', 4]], dtype=object)))
