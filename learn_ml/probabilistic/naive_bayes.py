@@ -11,21 +11,56 @@ class NaiveBayes(object):
 
     Attributes:
         dim:
+        y_prob: Dict like probability object
+                Example: {'man':0.23,'woman:0.77}
+        x_prob: List dict like probability object
+                Example: [{'married':{'man':0.5,'woman':0.5},'unmarried':{'man':0,5,'woman':0.5}},...]
     """
 
     def __init__(self, smooth_strategy='laplace'):
         self.smooth_strategy = smooth_strategy
+        self.y_prob = None
+        self.x_prob = None
+        self.dim = None
 
-    def fit_backup(self,X,y):
+    def fit(self, X, y):
         """
-        use 3-d array to store pre-compute result
+
         :param X:
         :param y:
         :return:
         """
-        pass
+        if not isinstance(X, np.ndarray):
+            raise ValueError('Not supported data structure')
+        self.dim = X.shape[1]
+        y_unique = np.unique(y, return_counts=True)
+        y_quant = list(map(lambda y: save_divide(y, len(y)), y_unique[1]))
+        self.y_prob = dict(zip(y_unique[0], y_quant))
 
-    def fit(self, X, y):
+        # iter column in X to compute probability of each feature value
+        self.x_prob = []
+        for col_idx in range(X.shape[1]):
+            if self.is_continuous(X[:, col_idx]):
+                mean = np.mean(X[:, col_idx])
+                std = np.std(X[:, col_idx])
+                prob = {'mean': mean, 'std': std}
+            else:
+                prob = dict()
+                tmp = np.stack((X[:, col_idx], y), axis=1)
+                for x in np.unique(X[:, col_idx]):
+                    x_y_map = dict()
+                    for y in y_unique[0]:
+                        count_x_y = len(tmp[(tmp[:, 0] == x) & (tmp[:, 1]) == y])
+                        if count_x_y == 0:
+                            # TODO add smooth method
+                            p_x_y = 0.0001
+                        else:
+                            p_x_y = count_x_y / len(tmp[tmp[:, 1] == y])
+                        x_y_map[y] = p_x_y
+                    prob[x] = x_y_map
+            self.x_prob.append(prob)
+
+    def fit_backup(self, X, y):
         if not isinstance(X, np.ndarray):
             raise ValueError('Not supported data structure')
         self.X = X
