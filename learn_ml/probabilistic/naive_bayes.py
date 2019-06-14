@@ -60,6 +60,18 @@ class NaiveBayes(object):
                     prob[x] = x_y_map
             self.x_prob.append(prob)
 
+    def predict(self, X):
+        if not isinstance(X, np.ndarray):
+            raise ValueError('Not supported data structure')
+        for x in X:
+            prob = 1
+            for y,prob in self.y_prob.items():
+                for i in range(len(x)):
+                    p_x_y=0
+                    x_y_map = self.x_prob[i]
+
+
+
     def fit_backup(self, X, y):
         if not isinstance(X, np.ndarray):
             raise ValueError('Not supported data structure')
@@ -97,7 +109,7 @@ class NaiveBayes(object):
     def gaussion_probality_dense(x, mean, std):
         return 1 / (math.sqrt(2 * math.pi * std ** 2)) * math.exp((-1 * (x - mean) ** 2) / (2 * std ** 2))
 
-    def predict(self, X):
+    def predict_backup(self, X):
         """
 
         :param X: require 2-d array
