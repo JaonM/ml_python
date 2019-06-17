@@ -8,6 +8,8 @@ from learn_ml.utility import save_divide
 
 class NaiveBayes(object):
     """
+    When it is continuous variable, use normal distribution to estimate p(x|y).
+    Otherwise, use multinomial distribution
 
     Parameters:
         _lambda: Laplace smooth lambda value
@@ -50,10 +52,9 @@ class NaiveBayes(object):
                 for x in np.unique(X[:, col_idx]):
                     x_y_map = dict()
                     for _y in y_unique[0]:
-                        count_x_y = len(tmp[(tmp[:, 0] == x) & (tmp[:, 1]== _y)])
+                        count_x_y = len(tmp[(tmp[:, 0] == x) & (tmp[:, 1] == _y)])
                         p_x_y = save_divide(count_x_y + self._lambda, len(tmp[tmp[:, 1] == _y]) + len(np.unique(
                             X[:, col_idx])) * self._lambda)
-                        print(_y, p_x_y,count_x_y)
                         x_y_map[_y] = p_x_y
                     prob[x] = x_y_map
             self.x_prob.append(prob)
@@ -90,11 +91,10 @@ class NaiveBayes(object):
         """
         To tell whether a feature is continuous or not
         :param x:
-        :con_ration:
+        :param con_ratio:
         :return:
         """
-        _unique = np.unique(x)
-        if len(_unique) / len(x) >= con_ratio and type(x[0]) != str:
+        if save_divide(len(np.unique(x)), len(x)) >= con_ratio and type(x[0]) != str:
             return True
         else:
             return False
