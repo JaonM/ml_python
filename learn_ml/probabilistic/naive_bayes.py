@@ -89,6 +89,7 @@ class NaiveBayes(object):
     @staticmethod
     def is_continuous(x, con_ratio=0.95):
         """
+        TODO Can't tell when we have small data
         To tell whether a feature is continuous or not
         :param x:
         :param con_ratio:
