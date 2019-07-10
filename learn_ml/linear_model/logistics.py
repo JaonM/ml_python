@@ -17,7 +17,7 @@ class LogisticsRegression(object):
     Parameters:
         max_iter : int,Max number of iteration,default 100
         penalty : str,'l2','l1' regularization,default None
-        optimizer: str,'gd','sgd','new-ton',...
+        optimizer: str,'gd','sgd','min-sgd','new-ton',...
         tol: float,Tolerance for stopping criteria,default TODO
         shuffle: Whether shuffle the data,default True
         eta: Learning rate
@@ -55,9 +55,15 @@ class LogisticsRegression(object):
         """
         X, y = _check_input(X), _check_input(y)
 
+        if shuffle:
+            np.random.shuffle(X)
+
         self.coef, self.bias = self._init_coefficient(X)
 
         self._init_parameters()
+
+        if self.optimizer == 'gd':
+            pass
 
     def _init_parameters(self):
         if self.penalty:
