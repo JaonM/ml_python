@@ -25,6 +25,7 @@ class LogisticsRegression(object):
         C: L2 regularization parameter,default None
         alpha: L1 regularization parameter,default None
         with_bias: Whether contains bias,default False
+        patient: Number of iteration that no changing loss
 
     Attributes:
         classes_: Class list
@@ -34,7 +35,7 @@ class LogisticsRegression(object):
     """
 
     def __int__(self, max_iter=100, penalty=None, optimizer='gd', tol=1e-4, shuffle=True, eta=1e-3,
-                lr_strategy='fix', C=None, alpha=None, with_bias=False):
+                lr_strategy='fix', C=None, alpha=None, with_bias=False,patient=5):
         self.max_iter = max_iter
         self.penalty = penalty
         self.optimizer = optimizer
@@ -45,6 +46,7 @@ class LogisticsRegression(object):
         self.C = C
         self.alpha = alpha
         self.with_bias = with_bias
+        self.patient=patient
 
     def fit(self, X, y):
         """
