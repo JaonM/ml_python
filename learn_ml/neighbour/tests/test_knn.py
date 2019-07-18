@@ -1,5 +1,5 @@
 """
-knn test script
+knn tests script
 """
 import numpy as np
 from learn_ml.neighbour.knn import KNN, DecisionEnum

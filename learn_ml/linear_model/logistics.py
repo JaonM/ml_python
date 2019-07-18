@@ -35,7 +35,7 @@ class LogisticsRegression(object):
     """
 
     def __int__(self, max_iter=100, penalty=None, optimizer='gd', tol=1e-4, shuffle=True, eta=1e-3,
-                lr_strategy='fix', C=None, alpha=None, with_bias=False,patient=5):
+                lr_strategy='fix', C=None, alpha=None, with_bias=False, patient=5):
         self.max_iter = max_iter
         self.penalty = penalty
         self.optimizer = optimizer
@@ -55,7 +55,8 @@ class LogisticsRegression(object):
         :param y: array-like
         :return:
         """
-        X, y = _check_input(X), _check_input(y)
+        X, y = self._check_input(X), self._check_input(y)
+        self._check_penalty()
 
         if shuffle:
             np.random.shuffle(X)
@@ -85,18 +86,28 @@ class LogisticsRegression(object):
             bias = None
         return coef, bias
 
+    @staticmethod
+    def _check_input(x):
+        """
+        Check the type of input and change it into nd-array
+        :param x:
+        :return:
+        """
+        if type(x) == np.ndarray and len(x.shape) > 1:
+            return x
+        elif type(x) == np.ndarray and len(x.shape) == 1:
+            return x.reshape(-1, 1)
+        elif type(x) == list and len(np.array(x).shape) > 1:
+            return np.array(x)
+        elif type(x) == pd.DataFrame and len(x.shape) > 1:
+            return x.to_numpy()
+        else:
+            raise TypeError("Not support input type")
 
-def _check_input(x):
-    """
-    Check the type of input and change it into nd-array
-    :param x:
-    :return:
-    """
-    if type(x) == np.ndarray and len(x.shape) > 1:
-        return x
-    elif type(x) == list and len(np.array(x).shape) > 1:
-        return np.array(x)
-    elif type(x) == pd.DataFrame and len(x.shape) > 1:
-        return x.to_numpy()
-    else:
-        raise TypeError("Not support input type")
+    def _check_penalty(self):
+        if self.penalty and (not self.C or not self.alpha):
+            raise ValueError("Not valid penalty setting")
+        elif self.penalty == 'l2' and not self.C:
+            raise ValueError("Not valid penalty setting")
+        elif self.penalty == 'l1' and not self.alpha:
+            raise ValueError("Not valid penalty setting")
