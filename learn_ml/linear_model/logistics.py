@@ -5,9 +5,13 @@ TODO
     1. 支持不同的优化器
     2. 支持多种正则化项
     3. 支持并行
+    增加gd拟合测试
+
 """
 import numpy as np
 import pandas as pd
+
+from .optimizer import gradient_decent, sigmoid
 
 
 class LogisticsRegression(object):
@@ -25,17 +29,18 @@ class LogisticsRegression(object):
         C: L2 regularization parameter,default None
         alpha: L1 regularization parameter,default None
         with_bias: Whether contains bias,default False
-        patient: Number of iteration that no changing loss
+        patient: Number of consecutive iteration that not improving the training loss
 
     Attributes:
         classes_: Class list
         bias: Bias if with_bias is True,default None
         coef: Model coefficient
         n_iter: Number of iteration that actual fits
+        loss: Value of loss function
     """
 
-    def __int__(self, max_iter=100, penalty=None, optimizer='gd', tol=1e-4, shuffle=True, eta=1e-3,
-                lr_strategy='fix', C=None, alpha=None, with_bias=False, patient=5):
+    def __init__(self, max_iter=100, penalty=None, optimizer='sgd', tol=1e-4, shuffle=True, eta=0.1,
+                 lr_strategy='fix', C=None, alpha=None, with_bias=False, patient=5):
         self.max_iter = max_iter
         self.penalty = penalty
         self.optimizer = optimizer
@@ -46,7 +51,9 @@ class LogisticsRegression(object):
         self.C = C
         self.alpha = alpha
         self.with_bias = with_bias
-        self.patient=patient
+        self.patient = patient
+        self.n_iter = 0
+        self.loss = 0
 
     def fit(self, X, y):
         """
@@ -58,15 +65,38 @@ class LogisticsRegression(object):
         X, y = self._check_input(X), self._check_input(y)
         self._check_penalty()
 
-        if shuffle:
-            np.random.shuffle(X)
+        if self.shuffle:
+            p = np.random.permutation(len(X))
+            X, y = X[p], y[p]
 
         self.coef, self.bias = self._init_coefficient(X)
 
         self._init_parameters()
 
         if self.optimizer == 'gd':
-            pass
+            self.coef, self.bias, self.loss, self.n_iter = gradient_decent(X, y, self.max_iter, self.coef,
+                                                                           self.bias, self.eta, self.lr_strategy,
+                                                                           self.C, self.alpha,
+                                                                           self.tol, self.patient)
+
+    def predict(self, X, theta=0.5):
+        def binary(x):
+            if x >= theta:
+                return 1
+            else:
+                return 0
+
+        # return np.apply_along_axis(binary, 1, self.predict_proba(X))
+        r = np.array(list(map(binary,self.predict_proba(X))))
+        return r
+
+    def predict_proba(self, X):
+        """
+
+        :param X: array-like with shape(n_sample,n_dim)
+        :return:
+        """
+        return np.apply_along_axis(sigmoid, 1, X, coef=self.coef, bias=self.bias)
 
     def _init_parameters(self):
         if self.penalty:
@@ -96,7 +126,7 @@ class LogisticsRegression(object):
         if type(x) == np.ndarray and len(x.shape) > 1:
             return x
         elif type(x) == np.ndarray and len(x.shape) == 1:
-            return x.reshape(-1, 1)
+            return x
         elif type(x) == list and len(np.array(x).shape) > 1:
             return np.array(x)
         elif type(x) == pd.DataFrame and len(x.shape) > 1:
