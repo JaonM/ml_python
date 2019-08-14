@@ -53,7 +53,7 @@ class LogisticsRegression(object):
         self.with_bias = with_bias
         self.patient = patient
         self.n_iter = 0
-        self.loss = 0
+        self.losses = None
 
     def fit(self, X, y):
         """
@@ -71,13 +71,13 @@ class LogisticsRegression(object):
 
         self.coef, self.bias = self._init_coefficient(X)
 
-        self._init_parameters()
+        self._init_penalty()
 
         if self.optimizer == 'gd':
-            self.coef, self.bias, self.loss, self.n_iter = gradient_decent(X, y, self.max_iter, self.coef,
-                                                                           self.bias, self.eta, self.lr_strategy,
-                                                                           self.C, self.alpha,
-                                                                           self.tol, self.patient)
+            self.coef, self.bias, self.losses, self.n_iter = gradient_decent(X, y, self.max_iter, self.coef,
+                                                                             self.bias, self.eta, self.lr_strategy,
+                                                                             self.C, self.alpha,
+                                                                             self.tol, self.patient)
 
     def predict(self, X, theta=0.5):
         def binary(x):
@@ -86,8 +86,7 @@ class LogisticsRegression(object):
             else:
                 return 0
 
-        # return np.apply_along_axis(binary, 1, self.predict_proba(X))
-        r = np.array(list(map(binary,self.predict_proba(X))))
+        r = np.array(list(map(binary, self.predict_proba(X))))
         return r
 
     def predict_proba(self, X):
@@ -98,14 +97,14 @@ class LogisticsRegression(object):
         """
         return np.apply_along_axis(sigmoid, 1, X, coef=self.coef, bias=self.bias)
 
-    def _init_parameters(self):
+    def _init_penalty(self):
         if self.penalty:
-            if self.penalty == 'l2':
+            if self.penalty == 'l2' and not self.C:
                 self.C = 1
-            elif self.penalty == 'l1':
-                self.alpha = 1
+            elif self.penalty == 'l1' and not self.alpha:
+                self.alpha = 0.1
             else:
-                self.C, self.alpha = 1, 1
+                self.C, self.alpha = None, None
 
     def _init_coefficient(self, x):
         # TODO 可能要加入初始化策略
@@ -123,10 +122,9 @@ class LogisticsRegression(object):
         :param x:
         :return:
         """
-        if type(x) == np.ndarray and len(x.shape) > 1:
+        if type(x) == np.ndarray and len(x.shape) >= 1:
             return x
-        elif type(x) == np.ndarray and len(x.shape) == 1:
-            return x
+
         elif type(x) == list and len(np.array(x).shape) > 1:
             return np.array(x)
         elif type(x) == pd.DataFrame and len(x.shape) > 1:
@@ -135,7 +133,7 @@ class LogisticsRegression(object):
             raise TypeError("Not support input type")
 
     def _check_penalty(self):
-        if self.penalty and (not self.C or not self.alpha):
+        if self.penalty and not self.C and not self.alpha:
             raise ValueError("Not valid penalty setting")
         elif self.penalty == 'l2' and not self.C:
             raise ValueError("Not valid penalty setting")

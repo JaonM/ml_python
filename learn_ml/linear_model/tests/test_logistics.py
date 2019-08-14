@@ -17,4 +17,11 @@ def test_predict():
     clf.fit(X, y)
     y_pred = clf.predict(X)
     print(y_pred.shape)
-    assert 1 == 0
+
+
+def test_fit():
+    X, y = load_breast_cancer(return_X_y=True)
+    clf = LogisticsRegression(optimizer='gd', alpha=1)
+    clf.fit(X, y)
+    print(clf.n_iter)
+    print(clf.coef)

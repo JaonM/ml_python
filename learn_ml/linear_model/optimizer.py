@@ -39,8 +39,8 @@ def gradient_decent(X, y, n_iter, coef, bias, eta, lr_strategy, C=None, alpha=No
     # compute initial loss
     y_pred = np.apply_along_axis(sigmoid, 1, X, coef=coef, bias=bias)
     best_loss, last_loss = cross_entropy(y_pred, y), cross_entropy(y_pred, y)
-    # h = lambda x: sigmoid(x, coef, bias)
     iter_loss_no_change = 0
+    losses = []
 
     for _ in range(n_iter):
         act_iter += 1
@@ -63,6 +63,7 @@ def gradient_decent(X, y, n_iter, coef, bias, eta, lr_strategy, C=None, alpha=No
 
         y_pred = np.apply_along_axis(sigmoid, 1, X, coef=coef, bias=bias)
         cur_loss = cross_entropy(y_pred, y)
+        losses.append(cur_loss)
         if cur_loss < last_loss:
             iter_loss_no_change = 0
         last_loss = cur_loss
@@ -77,4 +78,4 @@ def gradient_decent(X, y, n_iter, coef, bias, eta, lr_strategy, C=None, alpha=No
         if lr_strategy != 'fix':
             pass
 
-    return coef, bias, best_loss, act_iter
+    return coef, bias, losses, act_iter
