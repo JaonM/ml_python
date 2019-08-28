@@ -5,7 +5,7 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.metrics import accuracy_score
 
 from ..optimizer import gradient_decent
-from ..optimizer import sigmoid
+from ..optimizer import sigmoid, to_batches
 
 
 def test_sigmoid():
@@ -58,7 +58,13 @@ def test_gradient_decent():
     score = accuracy_score(y, y_pred)
     print(score)
 
-    assert 1 == 0
+
+def test_to_batches():
+    X, y = np.random.rand(1000, 10), np.random.rand(1000)
+    batch_size = 10
+    for _x, _y in to_batches(X, y, batch_size):
+        assert _x.shape == (10, 10)
+        assert _y.shape == (10,)
 
 
 def binary(x):

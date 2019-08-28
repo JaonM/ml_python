@@ -18,7 +18,7 @@ def sigmoid(x, coef=None, bias=None):
     return 1 / (1 + np.exp(-(np.dot(coef, x) + bias)))
 
 
-def gradient_decent(X, y, n_iter, coef, bias, eta, lr_strategy, C=None, alpha=None, tol=1e-5, patient=5):
+def gradient_decent(X, y, n_iter, coef, bias, lr, lr_strategy, C=None, alpha=None, tol=1e-5, patient=5):
     """
     Gradient descent optimize method
     :param X: nd-array,with shape (n_sample,n_dim)
@@ -26,7 +26,7 @@ def gradient_decent(X, y, n_iter, coef, bias, eta, lr_strategy, C=None, alpha=No
     :param n_iter:
     :param coef:
     :param bias:
-    :param eta:
+    :param lr:
     :param lr_strategy:
     :param C:
     :param alpha:
@@ -49,7 +49,7 @@ def gradient_decent(X, y, n_iter, coef, bias, eta, lr_strategy, C=None, alpha=No
         h_X = np.apply_along_axis(sigmoid, 1, X, coef=coef, bias=bias)
         tmp = np.matmul(X.T, h_X - y) / len(X)
         # g = eta * np.sum(tmp, axis=0) / len(X)
-        g = eta * tmp
+        g = lr * tmp
         if C and not alpha:  # l2 penalty
             coef = coef - g - C / len(X) * coef
         elif alpha and not C:  # l1 penalty
@@ -58,7 +58,7 @@ def gradient_decent(X, y, n_iter, coef, bias, eta, lr_strategy, C=None, alpha=No
             coef = coef - g
         if bias:
             tmp = h_X - y
-            g = eta * np.sum(tmp, axis=0) / len(X)
+            g = lr * np.sum(tmp, axis=0) / len(X)
             bias = bias - g.item()
 
         y_pred = np.apply_along_axis(sigmoid, 1, X, coef=coef, bias=bias)
@@ -79,3 +79,29 @@ def gradient_decent(X, y, n_iter, coef, bias, eta, lr_strategy, C=None, alpha=No
             pass
 
     return coef, bias, losses, act_iter
+
+
+def min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, lr, lr_strategy, C, alpha, tol, patience=5):
+    """
+    mini batch gradient descent
+    :param X:
+    :param y:
+    :param n_iter:
+    :param coef:
+    :param bias:
+    :param batch_size:
+    :param lr:
+    :param lr_strategy:
+    :param C:
+    :param alpha:
+    :param tol:
+    :param patience:
+    :return:
+    """
+    pass
+
+
+def to_batches(X, y, batch_size):
+    n_batch = math.ceil(len(X) / batch_size)
+    for i in range(n_batch):
+        yield X[i * batch_size:(i + 1) * batch_size, :], y[i * batch_size:(i + 1) * batch_size]
