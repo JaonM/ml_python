@@ -1,4 +1,4 @@
-# ml_python
+# Machine Learning Python
 Implementation of machine learning&amp;deep learning algorithms
 
 
