@@ -1,4 +1,4 @@
-# learn_ml
+# ml_python
 Implementation of machine learning&amp;deep learning algorithms
 
 
