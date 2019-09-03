@@ -18,7 +18,7 @@ def sigmoid(x, coef=None, bias=None):
     return 1 / (1 + np.exp(-(np.dot(coef, x) + bias)))
 
 
-def gradient_decent(X, y, n_iter, coef, bias, lr, lr_strategy, C=None, alpha=None, tol=1e-5, patient=5):
+def gradient_decent(X, y, n_iter, coef, bias, lr, lr_strategy, C=None, alpha=None, tol=1e-4, patient=5):
     """
     Gradient descent optimize method
     :param X: nd-array,with shape (n_sample,n_dim)
@@ -43,6 +43,8 @@ def gradient_decent(X, y, n_iter, coef, bias, lr, lr_strategy, C=None, alpha=Non
     losses = []
 
     for _ in range(n_iter):
+        p = np.random.permutation(len(X))
+        X, y = X[p], y[p]
         act_iter += 1
         # update coef
         # compute gradient
@@ -69,7 +71,7 @@ def gradient_decent(X, y, n_iter, coef, bias, lr, lr_strategy, C=None, alpha=Non
         last_loss = cur_loss
         if cur_loss <= best_loss:
             best_loss = cur_loss
-        if cur_loss > best_loss + tol:
+        if cur_loss > best_loss - tol:
             iter_loss_no_change += 1
             if iter_loss_no_change > patient:
                 break
@@ -81,7 +83,8 @@ def gradient_decent(X, y, n_iter, coef, bias, lr, lr_strategy, C=None, alpha=Non
     return coef, bias, losses, act_iter
 
 
-def min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, lr, lr_strategy, C, alpha, tol, patience=5):
+def min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, lr, lr_strategy, C=None, alpha=None, tol=1e-4,
+                               patient=5):
     """
     mini batch gradient descent
     :param X:
@@ -95,7 +98,7 @@ def min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, lr, lr_stra
     :param C:
     :param alpha:
     :param tol:
-    :param patience:
+    :param patient:
     :return:
     """
     act_iter = 0  # actual number of iteration
@@ -108,7 +111,7 @@ def min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, lr, lr_stra
 
     for _ in range(n_iter):
         act_iter += 1
-        p = np.random.permutation(X)
+        p = np.random.permutation(len(X))
         X, y = X[p], y[p]
         for X_bat, y_bat in to_batches(X, y, batch_size):
             # update coef
@@ -136,7 +139,7 @@ def min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, lr, lr_stra
         last_loss = cur_loss
         if cur_loss <= best_loss:
             best_loss = cur_loss
-        if cur_loss > best_loss + tol:
+        if cur_loss > best_loss - tol:
             iter_loss_no_change += 1
             if iter_loss_no_change > patient:
                 break
@@ -144,6 +147,7 @@ def min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, lr, lr_stra
         # TODO learning update strategy
         if lr_strategy != 'fix':
             pass
+    return coef, bias, losses, act_iter
 
 
 def to_batches(X, y, batch_size):

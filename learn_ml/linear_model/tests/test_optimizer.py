@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.datasets import load_breast_cancer
 from sklearn.metrics import accuracy_score
 
-from ..optimizer import gradient_decent
+from ..optimizer import gradient_decent, min_batch_gradient_descent
 from ..optimizer import sigmoid, to_batches
 
 
@@ -37,20 +37,33 @@ def test_sigmoid():
 
 
 def test_gradient_decent():
-    # X = np.array([[1], [0], [0], [1], [1]])
-    # y = np.array([1, 0, 0, 1, 1])
-    # coef = np.array([1])
-    # X = np.random.rand(10, 1)
-    # y = np.random.randint(0, 2, size=10)
-
     X, y = load_breast_cancer(return_X_y=True)
 
     coef = np.random.rand(X.shape[1])
     bias = np.random.rand(1).item()
     # bias = None
-    n_iter = 2000
+    n_iter = 1000
     eta = 0.1
     coef, bias, loss, act_iter = gradient_decent(X, y, n_iter, coef, bias, eta, 'fix')
+
+    print(act_iter)
+    y_pred = np.apply_along_axis(sigmoid, 1, X, coef, bias)
+    y_pred = list(map(lambda x: binary(x), y_pred))
+    score = accuracy_score(y, y_pred)
+    print(score)
+
+
+def test_mini_gradient_descent():
+    X, y = load_breast_cancer(return_X_y=True)
+
+    coef = np.random.rand(X.shape[1])
+    bias = np.random.rand(1).item()
+    # bias = None
+    n_iter = 1000
+    eta = 0.1
+    batch_size = 12
+    print(X.shape, y.shape)
+    coef, bias, loss, act_iter = min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, eta, 'fix')
 
     print(act_iter)
     y_pred = np.apply_along_axis(sigmoid, 1, X, coef, bias)
