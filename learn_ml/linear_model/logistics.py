@@ -8,11 +8,10 @@ TODO
     增加gd拟合测试
 
 """
-import numpy as np
 import pandas as pd
 
-from .optimizer import gradient_decent, sigmoid
-
+from .optimizer import *
+from sklearn.linear_model import SGDClassifier
 
 class LogisticsRegression(object):
     """
@@ -24,12 +23,13 @@ class LogisticsRegression(object):
         optimizer: str,'gd','sgd','min-sgd','new-ton',...
         tol: float,Tolerance for stopping criteria,default TODO
         shuffle: Whether shuffle the data,default True
-        eta: Learning rate
+        lr: Learning rate
         lr_strategy: 'fix','auto decay'
         C: L2 regularization parameter,default None
         alpha: L1 regularization parameter,default None
         with_bias: Whether contains bias,default False
         patient: Number of consecutive iteration that not improving the training loss
+        batch_size: Number of samples per batch
 
     Attributes:
         classes_: Class list
@@ -39,14 +39,14 @@ class LogisticsRegression(object):
         loss: Value of loss function
     """
 
-    def __init__(self, max_iter=100, penalty=None, optimizer='sgd', tol=1e-4, shuffle=True, eta=0.1,
-                 lr_strategy='fix', C=None, alpha=None, with_bias=False, patient=5):
+    def __init__(self, max_iter=100, penalty=None, optimizer='sgd', tol=1e-4, shuffle=True, lr=0.1,
+                 lr_strategy='fix', C=None, alpha=None, with_bias=False, patient=5, batch_size=32):
         self.max_iter = max_iter
         self.penalty = penalty
         self.optimizer = optimizer
         self.tol = tol
         self.shuffle = shuffle
-        self.eta = eta
+        self.lr = lr
         self.lr_strategy = lr_strategy
         self.C = C
         self.alpha = alpha
@@ -54,6 +54,7 @@ class LogisticsRegression(object):
         self.patient = patient
         self.n_iter = 0
         self.losses = None
+        self.batch_size = batch_size
 
     def fit(self, X, y):
         """
@@ -75,9 +76,15 @@ class LogisticsRegression(object):
 
         if self.optimizer == 'gd':
             self.coef, self.bias, self.losses, self.n_iter = gradient_decent(X, y, self.max_iter, self.coef,
-                                                                             self.bias, self.eta, self.lr_strategy,
+                                                                             self.bias, self.lr, self.lr_strategy,
                                                                              self.C, self.alpha,
                                                                              self.tol, self.patient)
+        elif self.optimizer == 'sgd':
+            self.coef, self.bias, self.losses, self.n_iter = min_batch_gradient_descent(X, y, self.max_iter, self.coef,
+                                                                                        self.bias, self.batch_size,
+                                                                                        self.lr, self.lr_strategy,
+                                                                                        self.C, self.alpha, self.tol,
+                                                                                        self.patient)
 
     def predict(self, X, theta=0.5):
         def binary(x):
