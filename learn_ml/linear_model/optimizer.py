@@ -15,7 +15,7 @@ def sigmoid(x, coef=None, bias=None):
         coef = np.array([1] * len(x))
     if bias is None:
         bias = 0
-    return 1 / (1 + np.exp(-(np.dot(coef, x) + bias)))
+    return 1 / (1 + np.exp(-(np.dot(x, coef) + bias)))
 
 
 def gradient_decent(X, y, n_iter, coef, bias, lr, lr_strategy, C=None, alpha=None, tol=1e-4, patient=5):
@@ -37,7 +37,6 @@ def gradient_decent(X, y, n_iter, coef, bias, lr, lr_strategy, C=None, alpha=Non
     act_iter = 0  # actual number of iteration
 
     # compute initial loss
-    # y_pred = np.apply_along_axis(sigmoid, 1, X, coef=coef, bias=bias)
     y_pred = sigmoid(X, coef, bias)
     best_loss, last_loss = cross_entropy(y_pred, y), cross_entropy(y_pred, y)
     iter_loss_no_change = 0
@@ -49,10 +48,8 @@ def gradient_decent(X, y, n_iter, coef, bias, lr, lr_strategy, C=None, alpha=Non
         act_iter += 1
         # update coef
         # compute gradient
-        # h_X = np.apply_along_axis(sigmoid, 1, X, coef=coef, bias=bias)
         h_X = sigmoid(X, coef, bias)
         tmp = np.dot(X.T, h_X - y) / len(X)
-        # g = eta * np.sum(tmp, axis=0) / len(X)
         g = lr * tmp
         if C and not alpha:  # l2 penalty
             coef = coef - g - C / len(X) * coef
@@ -65,7 +62,6 @@ def gradient_decent(X, y, n_iter, coef, bias, lr, lr_strategy, C=None, alpha=Non
             g = lr * np.sum(tmp, axis=0) / len(X)
             bias = bias - g.item()
 
-        # y_pred = np.apply_along_axis(sigmoid, 1, X, coef=coef, bias=bias)
         y_pred = sigmoid(X, coef, bias)
         cur_loss = cross_entropy(y_pred, y)
         losses.append(cur_loss)
@@ -107,10 +103,8 @@ def min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, lr, lr_stra
     act_iter = 0  # actual number of iteration
 
     # compute initial loss
-    # y_pred = np.apply_along_axis(sigmoid, 1, X, coef=coef, bias=bias)
     y_pred = sigmoid(X, coef, bias)
     best_loss, last_loss = cross_entropy(y_pred, y), cross_entropy(y_pred, y)
-    # best_loss,last_loss = log_loss(y,y_pred),log_loss(y,y_pred)
     iter_loss_no_change = 0
     losses = []
 
@@ -118,13 +112,12 @@ def min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, lr, lr_stra
         act_iter += 1
         p = np.random.permutation(len(X))
         X_p, y_p = X[p], y[p]
+        batch_loss = []
         for X_bat, y_bat in to_batches(X_p, y_p, batch_size):
             # update coef
             # compute gradient
-            # h_X = np.apply_along_axis(sigmoid, 1, X_bat, coef=coef, bias=bias)
-            h_X = sigmoid(X, coef, bias)
+            h_X = sigmoid(X_bat, coef, bias)
             tmp = np.dot(X_bat.T, h_X - y_bat) / len(X_bat)
-            # g = eta * np.sum(tmp, axis=0) / len(X)
             g = lr * tmp
             if C and not alpha:  # l2 penalty
                 coef = coef - g - C / len(X_bat) * coef
@@ -136,11 +129,10 @@ def min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, lr, lr_stra
                 tmp = h_X - y_bat
                 g = lr * np.sum(tmp, axis=0) / len(X_bat)
                 bias = bias - g.item()
+            y_pred = sigmoid(X_bat, coef, bias)
+            batch_loss.append(cross_entropy(y_pred, y_bat))
 
-        # y_pred = np.apply_along_axis(sigmoid, 1, X, coef=coef, bias=bias)
-        y_pred = sigmoid(X, coef, bias)
-        cur_loss = cross_entropy(y_pred, y)
-        # cur_loss = log_loss(y,y_pred)
+        cur_loss = np.average(batch_loss)
         losses.append(cur_loss)
         if cur_loss < last_loss:
             iter_loss_no_change = 0
@@ -158,11 +150,6 @@ def min_batch_gradient_descent(X, y, n_iter, coef, bias, batch_size, lr, lr_stra
     return coef, bias, losses, act_iter
 
 
-# def to_batches(X, y, batch_size):
-#     n_batch = math.ceil(len(X) / batch_size)
-#     for i in range(n_batch):
-#         yield X[i * batch_size:(i + 1) * batch_size, :], y[i * batch_size:(i + 1) * batch_size]
-
 def to_batches(X, y, batch_size):
     for i in range(0, X.shape[0], batch_size):
-        yield X[i, i + batch_size, :], y[i.i + batch_size]
+        yield X[i: i + batch_size, :], y[i: i + batch_size]

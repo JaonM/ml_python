@@ -11,9 +11,9 @@ TODO
 import pandas as pd
 
 from .optimizer import *
-from sklearn.linear_model import SGDClassifier
 
-class LogisticsRegression(object):
+
+class LogisticRegression(object):
     """
     Logistics Regression Model
 
@@ -115,9 +115,9 @@ class LogisticsRegression(object):
 
     def _init_coefficient(self, x):
         # TODO 可能要加入初始化策略
-        coef = np.random.rand(x.shape[1])
+        coef = np.random.uniform(size=x.shape[1])
         if self.with_bias:
-            bias = np.random.randn()
+            bias = np.random.uniform()
         else:
             bias = None
         return coef, bias
